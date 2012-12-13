@@ -151,7 +151,7 @@ class Street(object):
             levels[i] = levels[i + 1] + self.cable[i].level(t, pt)
 
         def fmt(v):
-            return str(round(v, 2)).rjust(7)
+            return str(round(v, 8)).rjust(7)
 
         print
         # print negative charges (generation)

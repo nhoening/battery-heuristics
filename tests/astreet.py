@@ -16,31 +16,31 @@ class StreetTest(unittest.TestCase):
         '''
         '''
         cases = {}
-        # Each case: t, N, Dmax, Smax, adaptive, slope, placement_optimistic, bcharge, pt = result
-        # Hour 18: PVs are on
+        # Each case: t, N, Dmax, Smax, c_h, adaptive, slope, placement_optimistic, bcharge, pt = result
         # Case 1a: consumer first, thus generator last, who creates negative 1
         #          consumer always adds 2.75
-        cases[(18, 10, 3, 1, True, .5, True, 0, .5)] = (round(5 * 2.75 + 5 * -1, 2), -1)
-        # Case 1b: Now price is adapted, so they buy 2.85
-        cases[(18, 10, 3, 1, True, .5, True, 0, .3)] = (round(5 * 2.85 + 5 * -1, 2), -1)
+        cases[(26, 10, 3, 1, 1.2, True, .5, True, 0, .5)] = (round(5 * 2.787 + 5 * -1, 4), -1)
+        # Case 1b: Now price is adapted, so they buy 2.887
+        cases[(26, 10, 3, 1, 1.2, True, .5, True, 0, .3)] = (round(5 * 2.887 + 5 * -1, 4), -1)
         # Case 1c: Now try pessimistic
-        cases[(18, 10, 3, 1, True, .5, False, 0, .3)] = (round(5 * 2.85 + 5 * -1, 2), -5)
+        cases[(26, 10, 3, 1, 1.2, True, .5, False, 0, .3)] = (round(5 * 2.887 + 5 * -1, 4), -5)
         # Case 2: try higher N
-        cases[(18, 30, 3, 1, True, .5, True, 0, .3)] = (round(15 * 2.85 + 15 * -1, 2), -1)
-        # Case 3: test non-adaptive case. They buy 2.65
-        cases[(18, 10, 3, 1, False, .5, True, 0, .3)] = (round(5 * 2.65 + 5 * -1, 2), -1)
+        cases[(26, 30, 3, 1, 1.2, True, .5, True, 0, .3)] = (round(15 * 2.887 + 15 * -1, 4), -1)
+        # Case 3: test non-adaptive case. They buy 2.924
+        cases[(26, 10, 3, 1, 1.2, False, .5, True, 0, .3)] = (round(5 * 2.924 + 5 * -1, 4), -1)
         # Case 4: different time step: let house batteries charge, no PV
-        cases[(36, 10, 3, 1, True, .5, True, 0, .3)] = (round(5 * 3.85, 2), 0)
-        # Case 5: our battery charges 0.6
-        cases[(18, 10, 3, 1, True, .5, True, 0.6, .3)] = \
-                        (round(.6 + (5 * 2.85  + 5 * -1), 2), -1 + 0.6)
-        # Case 4b: and discharge
-        cases[(18, 10, 3, 1, True, .5, True, -0.6, .3)] = \
-                        (round(-.6 + (5 * 2.85  + 5 * -1), 2), -1 - 0.6)
+        cases[(38, 10, 3, 1, 1.2, True, .5, True, 0, .3)] = (round(5 * 3.887, 4), 0)
+        # Case 5a: our battery charges 0.6
+        cases[(26, 10, 3, 1, 1.2, True, .5, True, 0.6, .3)] = \
+                        (round(.6 + (5 * 2.887  + 5 * -1), 4), -1 + 0.6)
+        # Case 5b: and discharge
+        cases[(26, 10, 3, 1, 1.2, True, .5, True, -0.6, .3)] = \
+                        (round(-.6 + (5 * 2.887  + 5 * -1), 4), -1 - 0.6)
+
         for c in cases.keys():
             T = c[0]
-            s = Street(T=T+1, N=c[1], C=None, Dmax=c[2], Smax=c[3], adaptive=c[4],
-                       slope=c[5], placement_optimistic=c[6])
-            #s.draw(t, c[7], c[8])
-            fp, fm = s.f(T, c[7], c[8])
-            self.assertEqual((round(fp, 2), round(fm, 2)), cases[c])
+            s = Street(T=T+1, N=c[1], C=None, Dmax=c[2], Smax=c[3], c_h=c[4],
+                       adaptive=c[5], slope=c[6], placement_optimistic=c[7])
+            #s.draw(T, c[8], c[9])
+            fp, fm = s.f(T, c[8], c[9])
+            self.assertEqual((round(fp, 4), round(fm, 4)), cases[c])
