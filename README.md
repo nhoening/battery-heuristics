@@ -10,11 +10,14 @@ Contact: nicolas@cwi.nl
 Requirements
 -------------
 
+Running algorithms:
 * [Python 2.7+](http://python.org/)
-* [nicessa](http://homepages.cwi.nl/~nicolas/nicessa/)
 * [GLPK (GNU Linear Programming Kit)](http://www.gnu.org/software/glpk/)
 * [pymprog](http://pymprog.sourceforge.net/)
 
+Conduct experiments and plot graphs:
+* [nicessa](http://homepages.cwi.nl/~nicolas/nicessa/)
+* [Gnuplot](http://www.gnuplot.info/)
 
 Running simulations
 --------------------
