@@ -8,16 +8,16 @@ Contact: nicolas@cwi.nl
 
 
 Requirements
-**************
+-------------
 
-* `Python 2.7+ <http://python.org/>`_
-* `nicessa <http://homepages.cwi.nl/~nicolas/nicessa/>`_
-* `GLPK (GNU Linear Programming Kit) <http://www.gnu.org/software/glpk/>`_
-* `pymprog <http://pymprog.sourceforge.net/>`_
+* [Python 2.7+](http://python.org/)
+* [nicessa](http://homepages.cwi.nl/~nicolas/nicessa/)
+* [GLPK (GNU Linear Programming Kit)](http://www.gnu.org/software/glpk/)
+* [pymprog](http://pymprog.sourceforge.net/)
 
 
 Running simulations
-***********************
+--------------------
 
 Running all scenarios:
 
