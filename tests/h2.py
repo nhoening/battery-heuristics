@@ -35,7 +35,7 @@ class H2Test(unittest.TestCase):
 
     def test_h2(self):
         '''
-        Each case consists of T, C, B, b0, max_charge_rate, a list of prices, a list
+        Each case consists of T, C, B, b0, max_charge_rate, c_h, a list of prices, a list
         of fp values and a list of fm values (lists should all have length T).
         alpha is assumed to be one (100% efficient battery).
         The output of each case is the wishlist w.

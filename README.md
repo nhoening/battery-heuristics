@@ -36,3 +36,11 @@ By turning on the debug option in ``nicessa.conf``, more output can be generated
 to study what is going on.
 (then, it might be useful to also set the ``runs`` option down from 20 to 1 and 
 in ``main.py`` edit the list of battery types and ``w`` values that are run).
+
+
+Running tests
+--------------------
+
+``cd tests``
+``python run.py``
+
