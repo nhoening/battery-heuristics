@@ -29,14 +29,14 @@ class OfflineBattery(BaseBattery):
         fm0 = [self.street.f(t, 0, p[t])[1] for t in T]
         # maximal limit for magnitude we expect
         maxx = 100
-        # maximal number of consecutive critical steps
-        K = range(1)
+        # maximal number of consecutive critical steps considered
+        K = range(self.max_k)
         e = [math.pow(self.c_h, k + 1) for k in K]
         TK  = [(t,k) for t in T for k in K if k <= t]
 
         pymprog.beginModel('offline')
         #pymprog.verbose(True)
-        pymprog.solvopt(tm_lim=1000*60*4) #  max. time in milliseconds
+        pymprog.solvopt(tm_lim=1000*60*self.max_runtime)
         #print "Options:", pymprog.solvopt()
 
         # create variables
@@ -73,7 +73,6 @@ class OfflineBattery(BaseBattery):
         # ... cons. overloading constraints
         pymprog.st(v[t] >= e[k] * co[t, k] for t, k in TK)
         pymprog.st(co[t, 0] >= (x[t]-CC)/(maxx - CC) for t in T)
-        #pymprog.st(co[t, k] <= co[t, k-1] for t, k in TK if (t, k-1) in TK)
         pymprog.st(co[t, k] >= co[t-1, k-1] + co[t, k-1] - 1.5 for t, k in TK if ((t, k-1) in TK and (t-1, k-1) in TK))
 
         pymprog.solve()

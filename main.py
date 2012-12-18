@@ -28,6 +28,8 @@ def main(conf, log, seed):
     c_h = conf.getfloat('params', 'c_h')
     adaptive = conf.getboolean('params', 'adaptive')
     placement_optimistic = conf.getboolean('params', 'placement_optimistic')
+    LP_max_runtime = conf.getint('params', 'LP_max_runtime')  # in minutes
+    LP_max_k = conf.getint('params', 'LP_max_k')  # max. assumed k
 
     debug = conf.getboolean('params', 'debug')
 
@@ -64,11 +66,11 @@ def main(conf, log, seed):
             b = btype(capacity=B, efficiency=alpha, max_rate=max_rate,
                   street=street, exp_prices=exp_prices, avg_price=avg_price,
                   T=T, c_h=c_h)
-            if btype == DeterministicH2Battery:
-                b.exp_prices = actual_prices
-            if btype == OfflineBattery:
+            if btype in (OfflineBattery, DeterministicH2Battery):
                 b.exp_prices = actual_prices
             if btype in (OfflineBattery, NonDeterministicOfflineBattery):
+                b.max_runtime = LP_max_runtime
+                b.max_k = LP_max_k
                 b.solve_offline(w)
             accumulated_costs = 0
             for t in xrange(0, T):
