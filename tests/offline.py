@@ -44,17 +44,24 @@ class OfflineTest(unittest.TestCase):
         '''
 
         cases = {}
-        # Case 1a: a toy example: first five critical steps (need to sell), then 
-        #          high-priced non-critical steps, where we also like to sell.
-        #          Battery buys when it doesn't resolve, in order to sell later.
-        #          If it resolves, it does so reducing consecutive intervals.
+        # Case 1: a toy example: only critical steps. Battery first evenly 
+        #         resolves and recharges, in the end resolves until discharged.
+        prices = (.5, .5,  .5,  .5,  .5,  .5,  .5,  .5)
+        fps =   ( 55,  55,  55,  55,  55,  55,  55,  55)
+        fms =   (-10, -10, -10, -10, -10, -10, -10, -10)
+        cases[(8, 50, 20, 10, 5, 1.2, prices, fps, fms)] =\
+                {0: 5, 1: -5, 2: 5, 3: -5, 4: 5, 5: -5, 6: -5, 7: -5}
+
+        # Case 2: a bit more details: first five critical steps (need to sell), then 
+        #         high-priced non-critical steps, where we also like to sell.
+        #         Battery buys when it doesn't resolve, in order to sell later.
+        #         If it resolves, it does so reducing consecutive intervals.
         prices = (.501, .502,  .503,  .504,  .505,  .8,  .8,  .8)
         fps =   ( 55,  55,  55,  55,  55,  30,  30,  30)
         fms =   (-10, -10, -10, -10, -10, -10, -10, -10)
         cases[(8, 50, 20, 10, 5, 1.2, prices, fps, fms)] =\
                 {0: 5, 1: -5, 2: 5, 3: -5, 4: 5, 5: -5, 6: -5, 7: -5}
-
-        # Case 1b: We shorten the critical interval, add another high-price step.
+        # Case 3: We shorten the critical interval, add another high-price step.
         #          Resolving is less worthwhile than buying now and 
         #          selling later, since the profit 5*(.8-.5)=1.5, bigger than
         #          even 1.2^2
@@ -63,8 +70,7 @@ class OfflineTest(unittest.TestCase):
         fms =   (-10, -10, -10, -10, -10, -10, -10, -10)
         cases[(8, 50, 20, 10, 5, 1.2, prices, fps, fms)] =\
                 {0: 5, 1: 5, 2: -5, 3: 5, 4: -5, 5: -5, 6: -5, 7: -5}
-
-
+        
         for c in cases.keys():
             T = c[0]
             prices = c[6]
@@ -74,11 +80,10 @@ class OfflineTest(unittest.TestCase):
             s = DummyStreet(C=c[1], fps=c[7], fms=c[8])
             b = OfflineBattery(capacity=c[2], efficiency=1, max_rate=c[4],
                     street=s, exp_prices=prices, avg_price=.5, T=T, c_h=c[5])
-
             b.level = c[3]
             b.max_runtime = 1
             b.max_k = 10
-            b.solve_offline(1)  # TODO assumption about w
+            b.solve_offline(1)
             #print b.w
             bcharge = b.w[0]
             self.assertEqual(round(bcharge, 2), cases[c][0])

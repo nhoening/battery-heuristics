@@ -42,5 +42,6 @@ Running tests
 --------------------
 
 ``cd tests``
+
 ``python run.py``
 
