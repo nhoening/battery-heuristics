@@ -54,7 +54,7 @@ class HeuristicBattery(BaseBattery):
             print("wishlist after stage 1: ",
                   [round(x, 2) for x in self.w.values()])
         # from here on, we reduce our desired actions)
-        first = t
+        first = t  # this always points to the first non-critical step
         next_critical = critical_markers.pop(0)
         while next_critical:
             # 2. Make non-critical interval feasible
@@ -91,7 +91,7 @@ class HeuristicBattery(BaseBattery):
                     lp = [j for j in xrange(first, next_critical) if w[j] > 0]
                     self.buy_less_than_wished(lp, b(next_critical) - B + Sx,
                                               True)
-                # move indices to next interval
+                # move indices to next non-critical interval
                 first = i
                 while first < 47 and self.street.is_critical(first, 0,
                                                              p[first]):
@@ -163,7 +163,7 @@ class HeuristicBattery(BaseBattery):
             if r == 0:
                 return
 
-    def buy_less_than_wished(self, lm, r, checkb=False, overdo=False):
+    def buy_less_than_wished(self, lm, r, checkb=False):
         '''Reduce buying (in w) by r. lm is indices of buying steps.'''
         p = self.exp_prices
         w = self.w
