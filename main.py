@@ -15,6 +15,7 @@ def main(conf, log, seed):
     ws = [.05, .2, .5, 1, 2]
     battery_types = (NoBattery, OfflineBattery, BaseBattery,
                      HeuristicBattery, NonDeterministicOfflineBattery)
+    #battery_types = (NoBattery, BaseBattery, HeuristicBattery,)
 
     T = 48  # this is given by the price data structure: half-hour intervals
     N = conf.getint('params', 'N')
@@ -25,6 +26,8 @@ def main(conf, log, seed):
     econ_slope = conf.getfloat('params', 'econ_slope')
     Dmax = conf.getfloat('params', 'Dmax')
     Smax = conf.getfloat('params', 'Smax')
+    pmax = conf.getfloat('params', 'pmax')
+    pmin = conf.getfloat('params', 'pmin')
     c_h = conf.getfloat('params', 'c_h')
     adaptive = conf.getboolean('params', 'adaptive')
     placement_optimistic = conf.getboolean('params', 'placement_optimistic')
@@ -53,8 +56,8 @@ def main(conf, log, seed):
             exp_prices = [float(p) for p in line[2:]]
             break
 
-    street = Street(T=T, N=N, C=C, Dmax=Dmax, Smax=Smax, c_h=c_h,
-                    adaptive=adaptive, slope=econ_slope,
+    street = Street(T=T, N=N, C=C, Dmax=Dmax, Smax=Smax, pmax=pmax, pmin=pmin,
+                    c_h=c_h, adaptive=adaptive, slope=econ_slope,
                     placement_optimistic=placement_optimistic)
     log.write('# w, ')
     for btype in battery_types:
@@ -102,13 +105,15 @@ def main(conf, log, seed):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) < 3:
-        print "Usage: ./main.py <log-filename> <conf-filename> [<seed>]"
+    if not len(sys.argv) in (2,4):
+        print "Usage: ./main.py <conf-filename> [<log-filename> <seed-nr>]"
         sys.exit()
     conf = ConfigParser()
-    conf.read(sys.argv[2])
-    log = open(sys.argv[1], 'w')
-    seed = None
+    conf.read(sys.argv[1])
     if len(sys.argv) == 4:
+        log = open(sys.argv[2], 'w')
         seed = sys.argv[3]
+    else:
+        log = open(conf.get('control', 'logfile'), 'w')
+        seed = conf.get('control', 'seed')
     main(conf, log, seed)

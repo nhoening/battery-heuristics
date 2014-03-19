@@ -8,7 +8,7 @@ class BaseBattery(object):
     name = 'H1'
 
     def __init__(self, capacity, efficiency, max_rate, street, exp_prices,
-                 avg_price, T, c_h):
+                 avg_price, T, c_h, kwh_adj=1):
         self.capacity = capacity
         self.efficiency = efficiency
         assert(efficiency >= 0 and efficiency <= 1)
@@ -18,6 +18,7 @@ class BaseBattery(object):
         self.avg_price = avg_price
         self.T = T
         self.c_h = c_h
+        self.kwh_adj = kwh_adj
         self.level = self.capacity / 2.
         self.account = -self.level * self.avg_price
 
@@ -37,19 +38,19 @@ class BaseBattery(object):
                 A = min(A, -C - fm)
         else:
             # go as near to half capacity as possible
-            A = (self.capacity / 2.) - self.level
+            A = 1/self.kwh_adj * (self.capacity / 2. - self.level)
             if A > 0:  # account for efficiency losses
                 A *= 1 / self.efficiency
             # respect cable constraint
             A = min(A, C - fp)
             A = max(A, - C - fm)
         # respect physical limits
+        if checkB:
+            if A > 0 and self.kwh_adj * (A * self.efficiency) > self.capacity - self.level:
+                A = 1/self.kwh_adj * (self.capacity - self.level)
+            A = max(A, -self.level * 1/self.kwh_adj)
         A = min(A, self.max_rate)
         A = max(A, -self.max_rate)
-        if checkB:
-            if A > 0 and A * self.efficiency > self.capacity - self.level:
-                A = self.capacity - self.level
-            A = max(A, -self.level)
         return A
 
     def execute_charge(self, charge, pt):
@@ -58,7 +59,7 @@ class BaseBattery(object):
         This is the place where we actually round charges to fix outcomes.
         Return revenues made in step t.
         '''
-        precision = 2
+        precision = 2  # rounding precision
 
         def rounddown(num):
             '''
@@ -74,21 +75,30 @@ class BaseBattery(object):
             else:
                 return num2
 
+        # we round down to get rid of inexactness from * and /
         rounding_needed = not self.name.startswith('Offline')
+        
         if rounding_needed:
-            # getting rid of inexactness from * and /
             charge = rounddown(charge)
         assert(charge <= self.max_rate)
         assert(charge >= -self.max_rate)
+        
         if charge > 0:  # Apply efficiency. Efficiency only affects level,
                         # not revenue or what the cable experiences!
             if rounding_needed:
-                self.level += rounddown(charge * self.efficiency)
+                self.level += self.kwh_adj * rounddown(charge * self.efficiency)
             else:
-                self.level += charge * self.efficiency
+                self.level += self.kwh_adj * (charge * self.efficiency)
         else:
-            self.level += charge
-        assert(round(self.level, precision) >= 0)
+            self.level += self.kwh_adj * charge
+        if rounding_needed:
+            self.level = rounddown(self.level)
+        try:
+            assert(round(self.level, precision) >= 0)
+            assert(round(self.level, precision) <= self.capacity)
+        except:
+            print('Ooops: {}'.round(self.level))
+            raise
         revenue = -1 * charge * pt  # negative bcs sales amounts are negative,
                                     # but we earn by selling and pay for buying
         self.account += revenue

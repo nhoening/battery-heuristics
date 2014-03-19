@@ -39,7 +39,7 @@ class StreetTest(unittest.TestCase):
 
         for c in cases.keys():
             T = c[0]
-            s = Street(T=T+1, N=c[1], C=None, Dmax=c[2], Smax=c[3], c_h=c[4],
+            s = Street(T=T+1, N=c[1], C=None, Dmax=c[2], Smax=c[3], pmax=.452, pmin=.074, c_h=c[4],
                        adaptive=c[5], slope=c[6], placement_optimistic=c[7])
             #s.draw(T, c[8], c[9])
             fp, fm = s.f(T, c[8], c[9])

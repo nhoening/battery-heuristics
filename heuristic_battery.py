@@ -16,6 +16,7 @@ class HeuristicBattery(BaseBattery):
         self.w = dict.fromkeys(self.future, 0)
         # some shortcuts
         w = self.w
+        self.ka = self.kwh_adj
         p = [pr for pr in self.exp_prices]
         p[t] = pt  # this we know for sure now
         b = self.b
@@ -62,11 +63,11 @@ class HeuristicBattery(BaseBattery):
             while i < next_critical:
                 if b(i + 1) > B:  # if w[i] causes a problem
                     lp = self.same_sign_steps(i, first, next_critical)
-                    self.buy_less_than_wished(lp, b(lp[-1] + 1) - B)
+                    self.buy_less_than_wished(lp, 1/self.ka * (b(lp[-1] + 1) - B))
                     i = lp[-1] + 1
                 elif b(i + 1) < 0:
                     lm = self.same_sign_steps(i, first, next_critical)
-                    self.sell_less_than_wished(lm, - b(lm[-1] + 1))
+                    self.sell_less_than_wished(lm, 1/self.ka * (- b(lm[-1] + 1)))
                     i = lm[-1] + 1
                 else:
                     i += 1
@@ -84,12 +85,12 @@ class HeuristicBattery(BaseBattery):
                 # Case 1: not enough on battery for critical interval
                 if Sx < 0 and b(next_critical) > Sx:
                     lm = [j for j in xrange(first, next_critical) if w[j] < 0]
-                    self.sell_less_than_wished(lm, abs(Sx) - b(next_critical),
+                    self.sell_less_than_wished(lm, 1/self.ka * (abs(Sx) - b(next_critical)),
                                                True)
                 # Case 2: critical interval would exceed capacity
                 if Sx > 0 and b(next_critical) > B - Sx:
                     lp = [j for j in xrange(first, next_critical) if w[j] > 0]
-                    self.buy_less_than_wished(lp, b(next_critical) - B + Sx,
+                    self.buy_less_than_wished(lp, 1/self.ka * (b(next_critical) - B + Sx),
                                               True)
                 # move indices to next non-critical interval
                 first = i
@@ -113,9 +114,9 @@ class HeuristicBattery(BaseBattery):
         bt = self.level
         for i in xrange(self.future[0], t):
             if self.w[i] > 0:
-                bt += self.w[i] * self.efficiency
+                bt += self.ka * self.w[i] * self.efficiency
             else:
-                bt += self.w[i]
+                bt += self.ka * self.w[i]
         return bt
 
     def same_sign_steps(self, t, start, up_to, critical_condition=False):
@@ -167,6 +168,7 @@ class HeuristicBattery(BaseBattery):
         '''Reduce buying (in w) by r. lm is indices of buying steps.'''
         p = self.exp_prices
         w = self.w
+        r /= self.efficiency
         # we will use lm later, so work on copy
         lpr = [i for i in lm]
         # sort by decreasing price

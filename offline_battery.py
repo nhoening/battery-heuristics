@@ -23,6 +23,7 @@ class OfflineBattery(BaseBattery):
         CC = self.street.C
         alpha = self.efficiency
         p = self.exp_prices
+        ka = self.kwh_adj
 
         # magnitudes without me involved
         fp0 = [self.street.f(t, 0, p[t])[0] for t in T]
@@ -61,8 +62,8 @@ class OfflineBattery(BaseBattery):
         pymprog.st(0 <= d[t] <= Bm for t in T)
         # we use a positive d in this problem
         for t in T:
-            pymprog.st(b0 + sum(alpha * c[j] - d[j] for j in range(t + 1)) <= B)
-            pymprog.st(b0 + sum(alpha * c[j] - d[j] for j in range(t + 1)) >= 0)
+            pymprog.st(b0 + sum(ka * (alpha * c[j]) - ka * d[j] for j in range(t + 1)) <= B)
+            pymprog.st(b0 + sum(ka * (alpha * c[j]) - ka * d[j] for j in range(t + 1)) >= 0)
         # ... cable constraints
         pymprog.st(x[t] >= 0 for t in T)
         pymprog.st(x[t] >= fp0[t] + c[t] - d[t] for t in T)

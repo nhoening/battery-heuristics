@@ -9,7 +9,7 @@ class Street(object):
     '''
     '''
 
-    def __init__(self, T, N, C, Dmax, Smax, c_h, adaptive, slope,
+    def __init__(self, T, N, C, Dmax, Smax, pmax, pmin, c_h, adaptive, slope,
                  placement_optimistic):
         self.N = N
         assert(N % 2 == 0)
@@ -28,11 +28,11 @@ class Street(object):
             self.magnitudes_per_segment[n] = dict.fromkeys(range(T), 0)
         if placement_optimistic:
             for _ in range(int(N / 2)):
-                self.cable.append(Consumer(Dmax, adaptive, slope))
+                self.cable.append(Consumer(Dmax, pmax, pmin, adaptive, slope))
                 self.cable.append(Generator(Smax))
         else:
             for _ in range(int(N / 2)):
-                self.cable.append(Consumer(Dmax, adaptive, slope))
+                self.cable.append(Consumer(Dmax, pmax, pmin, adaptive, slope))
             for _ in range(int(N / 2)):
                 self.cable.append(Generator(Smax))
 
